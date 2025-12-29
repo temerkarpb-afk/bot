@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Чат-бот</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+  <!-- Чат -->
+  <div class="chat">
+    <h2>🤖 AI Чат-бот</h2>
+    <div id="messages" class="messages"></div>
+
+    <div class="input-box">
+      <input type="text" id="userInput" placeholder="Напиши сообщение...">
+      <button onclick="sendMessage()">Отправить</button>
+    </div>
+  </div>
+
+  <!-- История поисков -->
+  <div class="history-container">
+    <h3>История запросов</h3>
+    <div id="history" class="history"></div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
