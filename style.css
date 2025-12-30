@@ -125,4 +125,58 @@ button#sendBtn { background: var(--neon-blue); border: none; padding: 10px 20px;
         padding: 10px 15px;
     }
 }
+.container, #chat-container, body > div { 
+    display: flex !important;
+    flex-direction: row; /* На ПК в ряд */
+    flex-wrap: wrap;    /* Позволяет блокам перепрыгивать */
+    justify-content: center;
+    gap: 20px;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Настройки для мобильных (смартфоны) */
+@media screen and (max-width: 800px) {
+    
+    /* 1. Заставляем блоки встать друг под друга, а не в ряд */
+    .container, #chat-container, body > div {
+        flex-direction: column !important;
+        align-items: center;
+        padding: 10px;
+    }
+
+    /* 2. Чат теперь занимает всю ширину */
+    .chat-box, #main-chat-window { 
+        width: 100% !important;
+        max-width: 100%;
+        order: 1; /* Чат будет первым сверху */
+    }
+
+    /* 3. История уходит вниз */
+    .history-panel, #history {
+        width: 100% !important;
+        max-width: 100%;
+        order: 2; /* История будет под чатом */
+        margin-top: 20px;
+    }
+
+    /* 4. Исправляем поле ввода, чтобы кнопка не вылетала */
+    .input-area, #input-box {
+        display: flex;
+        flex-direction: row !important; /* Здесь оставляем в ряд */
+        width: 100%;
+        gap: 5px;
+    }
+
+    input#userInput {
+        flex: 1; /* Инпут забирает всё место */
+        min-width: 0; /* Чтобы не распирало экран */
+    }
+
+    button#sendBtn {
+        flex-shrink: 0; /* Кнопка не сжимается */
+        padding: 10px 15px;
+    }
+}
 
