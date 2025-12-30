@@ -103,8 +103,9 @@ async function getBotResponse(text) {
 
         return data.choices[0].message.content; // Путь к ответу в OpenAI
     } catch (e) {
-        return "Ошибка подключения. Проверь VPN (если ты в РФ) или баланс API ключа. 🛠️";
-    }
+    console.error("Детальная ошибка:", e);
+    return `Ошибка: ${e.message}. Нажми F12 и посмотри вкладку Console.`;
+}
 }
 
 function addMessage(author, text, className) {
@@ -117,3 +118,4 @@ function addMessage(author, text, className) {
 
 document.getElementById("sendBtn").onclick = sendMessage;
 input.onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); sendMessage(); } };
+
