@@ -54,6 +54,7 @@ async function getBotResponse(text) {
 
 // --- 4. ИНТЕРФЕЙС ---
 async function sendMessage() {
+  messagesContainer.scrollTo({ top: messagesContainer.scrollHeight, behavior: 'smooth' });
     const text = input.value.trim();
     if (!text) return;
 
