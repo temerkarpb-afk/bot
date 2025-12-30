@@ -55,50 +55,75 @@ button#sendBtn { background: var(--neon-blue); border: none; padding: 10px 20px;
 .typing-indicator { padding: 10px; display: flex; gap: 5px; }
 .typing-indicator span { width: 6px; height: 6px; background: var(--neon-blue); border-radius: 50%; animation: bounce 1s infinite; }
 @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-@media (max-width: 768px) {
-    #chat-container {
-        width: 95%; /* Занимает почти всю ширину */
-        height: 95vh; /* Почти вся высота */
-        margin: 5px;
-    }
+/* --- ГЛАВНЫЙ АДАПТИВ --- */
+
+/* Контейнеру чата в основном стиле обязательно добавь эти свойства, если их нет: */
+#chat-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 600px; /* На ПК будет аккуратным */
+    margin: 0 auto;
+    box-sizing: border-box;
 }
 
-/* Для маленьких смартфонов */
-@media (max-width: 480px) {
-    #chat-container {
-        width: 100%;
-        height: 100vh; /* На весь экран */
+/* Настройки для мобильных устройств */
+@media screen and (max-width: 600px) {
+    body {
+        padding: 0;
         margin: 0;
-        border-radius: 0; /* Убираем скругления по краям экрана */
+        overflow: hidden; /* Убираем лишнюю прокрутку самого фона */
     }
 
+    #chat-container {
+        width: 100vw;    /* Ширина ровно по экрану */
+        height: 100dvh;  /* Dynamic VH — учитывает панель навигации в Safari/Chrome */
+        max-width: none;
+        margin: 0;
+        border-radius: 0; /* Убираем скругления на весь экран */
+    }
+
+    /* Делаем область сообщений гибкой */
     #messages {
-        padding: 10px; /* Уменьшаем отступы, чтобы влезло больше текста */
-    }
-
-    .message {
-        max-width: 90%; /* Сообщения шире на мобилках */
-        font-size: 14px; /* Чуть меньше шрифт для компактности */
-    }
-
-    /* Делаем поле ввода и кнопку удобными для пальцев */
-    #input-area {
+        flex: 1; 
         padding: 10px;
+        -webkit-overflow-scrolling: touch; /* Плавный скролл на iPhone */
+    }
+
+    /* Исправляем сообщения */
+    .message {
+        max-width: 85%;
+        margin-bottom: 8px;
+        font-size: 15px; /* Читабельный размер */
+    }
+
+    /* Зона ввода — фиксируем снизу */
+    #input-area {
+        padding: 10px 10px 20px 10px; /* Увеличенный отступ снизу для безрамочных смартфонов */
+        background: #fff;
+        display: flex;
+        gap: 8px;
     }
 
     input#userInput {
+        flex: 1;
+        min-width: 0; /* Важно: чтобы инпут не распирал экран */
+        font-size: 16px; /* Защита от авто-зума на iOS */
         padding: 12px;
-        font-size: 16px; /* Защита от авто-зума на iPhone */
     }
 
     button#sendBtn {
-        padding: 10px 15px;
+        padding: 0 15px;
+        white-space: nowrap; /* Чтобы текст на кнопке не переносился */
     }
 }
 
-/* Фикс для очень коротких экранов (горизонтальный режим) */
-@media (max-height: 500px) {
+/* Если телефон повернут горизонтально */
+@media screen and (max-height: 450px) and (orientation: landscape) {
     #chat-container {
         height: 100vh;
+    }
+    #messages {
+        padding: 5px;
     }
 }
