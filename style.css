@@ -55,75 +55,98 @@ button#sendBtn { background: var(--neon-blue); border: none; padding: 10px 20px;
 .typing-indicator { padding: 10px; display: flex; gap: 5px; }
 .typing-indicator span { width: 6px; height: 6px; background: var(--neon-blue); border-radius: 50%; animation: bounce 1s infinite; }
 @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-/* --- ГЛАВНЫЙ АДАПТИВ --- */
+html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Чтобы не дергался фон */
+    position: fixed; /* Фикс для iOS */
+}
 
-/* Контейнеру чата в основном стиле обязательно добавь эти свойства, если их нет: */
+/* Основной контейнер */
 #chat-container {
     display: flex;
     flex-direction: column;
     width: 100%;
-    max-width: 600px; /* На ПК будет аккуратным */
+    max-width: 600px;
+    height: 100vh; /* Стандарт */
+    height: 100dvh; /* Динамическая высота для смартфонов */
+    background: #fff;
     margin: 0 auto;
-    box-sizing: border-box;
+    position: relative;
 }
 
-/* Настройки для мобильных устройств */
-@media screen and (max-width: 600px) {
+/* Область сообщений */
+#messages {
+    flex-grow: 1; /* Занимает всё свободное место */
+    overflow-y: auto;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    -webkit-overflow-scrolling: touch; /* Плавный скролл */
+    background: #f0f2f5; /* Цвет фона чата */
+}
+
+/* Сообщения */
+.message {
+    max-width: 85%;
+    word-wrap: break-word;
+    font-size: 16px;
+    padding: 10px 14px;
+    border-radius: 18px;
+    line-height: 1.4;
+}
+
+/* Зона ввода */
+#input-area {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 10px calc(10px + env(safe-area-inset-bottom)); /* Учитывает "челку" снизу на iPhone */
+    background: #fff;
+    border-top: 1px solid #ddd;
+}
+
+/* Поле ввода */
+#userInput {
+    flex: 1;
+    min-width: 0; /* Чтобы не распирало экран */
+    height: 45px;
+    padding: 0 15px;
+    border: 1px solid #ccc;
+    border-radius: 22px;
+    font-size: 16px; /* Важно для iOS (отключает зум) */
+    outline: none;
+}
+
+/* Кнопка */
+#sendBtn {
+    height: 45px;
+    width: 45px; /* Делаем круглой на мобилках */
+    border-radius: 50%;
+    border: none;
+    background: #007bff;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+/* МЕДИА-ЗАПРОС ДЛЯ ДЕСКТОПА */
+@media (min-width: 601px) {
     body {
-        padding: 0;
-        margin: 0;
-        overflow: hidden; /* Убираем лишнюю прокрутку самого фона */
-    }
-
-    #chat-container {
-        width: 100vw;    /* Ширина ровно по экрану */
-        height: 100dvh;  /* Dynamic VH — учитывает панель навигации в Safari/Chrome */
-        max-width: none;
-        margin: 0;
-        border-radius: 0; /* Убираем скругления на весь экран */
-    }
-
-    /* Делаем область сообщений гибкой */
-    #messages {
-        flex: 1; 
-        padding: 10px;
-        -webkit-overflow-scrolling: touch; /* Плавный скролл на iPhone */
-    }
-
-    /* Исправляем сообщения */
-    .message {
-        max-width: 85%;
-        margin-bottom: 8px;
-        font-size: 15px; /* Читабельный размер */
-    }
-
-    /* Зона ввода — фиксируем снизу */
-    #input-area {
-        padding: 10px 10px 20px 10px; /* Увеличенный отступ снизу для безрамочных смартфонов */
-        background: #fff;
+        background: #1e1e2f; /* Твой темный фон на ПК */
         display: flex;
-        gap: 8px;
+        justify-content: center;
+        align-items: center;
     }
-
-    input#userInput {
-        flex: 1;
-        min-width: 0; /* Важно: чтобы инпут не распирал экран */
-        font-size: 16px; /* Защита от авто-зума на iOS */
-        padding: 12px;
-    }
-
-    button#sendBtn {
-        padding: 0 15px;
-        white-space: nowrap; /* Чтобы текст на кнопке не переносился */
-    }
-}
-
-/* Если телефон повернут горизонтально */
-@media screen and (max-height: 450px) and (orientation: landscape) {
     #chat-container {
-        height: 100vh;
-    }
-    #messages {
-        padding: 5px;
+        height: 80vh;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
 }
