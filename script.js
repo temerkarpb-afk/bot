@@ -1,6 +1,6 @@
 // --- НАСТРОЙКИ ---
-const GEMINI_API_KEY = "AIzaSyDjqrgYkM3lmAc0pZCwLL1X2td1sWd48MM"; 
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+const OPENAI_API_KEY = "ВАШ_КЛЮЧ_OPENAI"; // Замените на свой ключ
+const API_URL = "https://api.openai.com/v1/chat/completions";
 
 const messagesContainer = document.getElementById("messages");
 const input = document.getElementById("userInput");
@@ -9,18 +9,18 @@ const historyList = document.getElementById("history");
 
 // Твоя старая база ответов
 const localAnswers = {
-    "Как приготовить пиццу": "Рецепт пиццы от Темирлана: 1. Тесто. 2. Соус. 3. Сыр. 4. Печь! 🍕",
+    "пицца": "Рецепт пиццы от Темирлана: 1. Тесто. 2. Соус. 3. Сыр. 4. Печь! 🍕",
     "создатель": "Меня создал великий Темирлан! 😎",
     "привет": "Привет! Я твой ИИ. О чем сегодня поговорим? 👋"
 };
 
-// --- ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ ---
+// --- ИНИЦИАЛИЗАЦИЯ ---
 window.onload = () => {
-    renderHistory(); // Загружаем историю
-    addMessage("Бот", "Я на связи! Если я не отвечаю на сложные вопросы — включи VPN. Но про Темирлана и пиццу я знаю всегда! 🚀", "bot");
+    renderHistory();
+    addMessage("Бот", "Я на связи через OpenAI! Спрашивай что угодно. 🚀", "bot");
 };
 
-// --- ФУНКЦИИ ИСТОРИИ (НОВОЕ) ---
+// --- ФУНКЦИИ ИСТОРИИ (БЕЗ ИЗМЕНЕНИЙ) ---
 function saveToHistory(text) {
     let history = JSON.parse(localStorage.getItem("ai_chat_history")) || [];
     if (history[0] !== text) {
@@ -35,7 +35,6 @@ function renderHistory() {
     if (!historyList) return;
     historyList.innerHTML = "";
     let history = JSON.parse(localStorage.getItem("ai_chat_history")) || [];
-
     history.forEach((text, index) => {
         const item = document.createElement("div");
         item.className = "history-item";
@@ -59,20 +58,13 @@ function deleteHistoryItem(index) {
     renderHistory();
 }
 
-function clearFullHistory() {
-    if (confirm("Точно очистить всю историю?")) {
-        localStorage.removeItem("ai_chat_history");
-        renderHistory();
-    }
-}
-
-// --- ЛОГИКА ЧАТА (СОХРАНЕНА И УЛУЧШЕНА) ---
+// --- ЛОГИКА ЧАТА (ОБНОВЛЕНА ПОД OPENAI) ---
 async function sendMessage() {
     const text = input.value.trim();
     if (!text) return;
 
     addMessage("Вы", text, "user");
-    saveToHistory(text); // Интеграция сохранения
+    saveToHistory(text);
     input.value = "";
     
     typingBox.style.display = "flex";
@@ -86,7 +78,6 @@ async function sendMessage() {
 
 async function getBotResponse(text) {
     const lowText = text.toLowerCase();
-    // Твоя проверка локальной базы
     for (let key in localAnswers) {
         if (lowText.includes(key)) return localAnswers[key];
     }
@@ -94,13 +85,25 @@ async function getBotResponse(text) {
     try {
         const response = await fetch(API_URL, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ contents: [{ parts: [{ text: text }] }] })
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${OPENAI_API_KEY}` // Ключ теперь передается в заголовке
+            },
+            body: JSON.stringify({
+                model: "gpt-4o-mini", // Указываем модель
+                messages: [{ role: "user", content: text }] // Структура OpenAI
+            })
         });
+
         const data = await response.json();
-        return data.candidates[0].content.parts[0].text;
+
+        if (data.error) {
+            return `Ошибка OpenAI: ${data.error.message}`;
+        }
+
+        return data.choices[0].message.content; // Путь к ответу в OpenAI
     } catch (e) {
-        return "Google API не пускает нас из этого региона. Включи VPN (США) в браузере и обнови страницу! Но я всё еще могу поболтать на темы из моей базы. 😉";
+        return "Ошибка подключения. Проверь VPN (если ты в РФ) или баланс API ключа. 🛠️";
     }
 }
 
@@ -109,11 +112,8 @@ function addMessage(author, text, className) {
     div.className = `message ${className}`;
     div.innerHTML = `<strong>${author}:</strong> ${text}`;
     messagesContainer.appendChild(div);
-    // Плавный скролл вниз
     messagesContainer.scrollTo({ top: messagesContainer.scrollHeight, behavior: 'smooth' });
 }
 
-// Привязка кнопок
 document.getElementById("sendBtn").onclick = sendMessage;
 input.onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); sendMessage(); } };
-
