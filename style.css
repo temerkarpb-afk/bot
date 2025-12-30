@@ -55,98 +55,62 @@ button#sendBtn { background: var(--neon-blue); border: none; padding: 10px 20px;
 .typing-indicator { padding: 10px; display: flex; gap: 5px; }
 .typing-indicator span { width: 6px; height: 6px; background: var(--neon-blue); border-radius: 50%; animation: bounce 1s infinite; }
 @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-html, body {
-    height: 100%;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    overflow: hidden; /* Чтобы не дергался фон */
-    position: fixed; /* Фикс для iOS */
-}
-
-/* Основной контейнер */
 #chat-container {
+    width: 100%;
+    max-width: 600px; /* Твоя ширина для ПК */
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
-    width: 100%;
-    max-width: 600px;
-    height: 100vh; /* Стандарт */
-    height: 100dvh; /* Динамическая высота для смартфонов */
-    background: #fff;
-    margin: 0 auto;
-    position: relative;
+    height: 90vh; /* Или твоя высота */
 }
 
 /* Область сообщений */
 #messages {
-    flex-grow: 1; /* Занимает всё свободное место */
+    flex: 1; /* Заставляет область сообщений забирать всё свободное место */
     overflow-y: auto;
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    -webkit-overflow-scrolling: touch; /* Плавный скролл */
-    background: #f0f2f5; /* Цвет фона чата */
+    width: 100%;
 }
 
-/* Сообщения */
-.message {
-    max-width: 85%;
-    word-wrap: break-word;
-    font-size: 16px;
-    padding: 10px 14px;
-    border-radius: 18px;
-    line-height: 1.4;
-}
-
-/* Зона ввода */
+/* Зона ввода (инпут + кнопка) */
 #input-area {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 10px calc(10px + env(safe-area-inset-bottom)); /* Учитывает "челку" снизу на iPhone */
-    background: #fff;
-    border-top: 1px solid #ddd;
+    width: 100%;
+    gap: 8px; /* Расстояние между инпутом и кнопкой */
 }
 
-/* Поле ввода */
-#userInput {
-    flex: 1;
-    min-width: 0; /* Чтобы не распирало экран */
-    height: 45px;
-    padding: 0 15px;
-    border: 1px solid #ccc;
-    border-radius: 22px;
-    font-size: 16px; /* Важно для iOS (отключает зум) */
-    outline: none;
+/* Твой инпут */
+input#userInput {
+    flex: 1; /* Инпут растягивается на всю доступную ширину */
+    min-width: 0; /* Важно: чтобы инпут не вылезал за экран на узких устройствах */
 }
 
-/* Кнопка */
-#sendBtn {
-    height: 45px;
-    width: 45px; /* Делаем круглой на мобилках */
-    border-radius: 50%;
-    border: none;
-    background: #007bff;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    cursor: pointer;
+/* Твоя кнопка */
+button#sendBtn {
+    flex-shrink: 0; /* Чтобы кнопка не сжималась, когда тексту мало места */
 }
 
-/* МЕДИА-ЗАПРОС ДЛЯ ДЕСКТОПА */
-@media (min-width: 601px) {
+/* --- САМ АДАПТИВ (Медиа-запросы) --- */
+
+@media (max-width: 600px) {
     body {
-        background: #1e1e2f; /* Твой темный фон на ПК */
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        padding: 0;
+        margin: 0;
     }
+
     #chat-container {
-        height: 80vh;
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        width: 100vw;   /* На мобилках на всю ширину */
+        height: 100vh;  /* На всю высоту */
+        height: 100dvh; /* Для мобильных браузеров (Safari/Chrome) */
+        border-radius: 0; /* Если были скругления у контейнера — убираем */
+    }
+
+    .message {
+        max-width: 90%; /* Сообщения чуть шире на смартфонах */
+        font-size: 16px; /* Оптимально для чтения с экрана */
+    }
+
+    input#userInput {
+        font-size: 16px; /* Защита от авто-приближения (zoom) на iPhone */
     }
 }
+
