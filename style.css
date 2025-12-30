@@ -55,3 +55,50 @@ button#sendBtn { background: var(--neon-blue); border: none; padding: 10px 20px;
 .typing-indicator { padding: 10px; display: flex; gap: 5px; }
 .typing-indicator span { width: 6px; height: 6px; background: var(--neon-blue); border-radius: 50%; animation: bounce 1s infinite; }
 @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@media (max-width: 768px) {
+    #chat-container {
+        width: 95%; /* Занимает почти всю ширину */
+        height: 95vh; /* Почти вся высота */
+        margin: 5px;
+    }
+}
+
+/* Для маленьких смартфонов */
+@media (max-width: 480px) {
+    #chat-container {
+        width: 100%;
+        height: 100vh; /* На весь экран */
+        margin: 0;
+        border-radius: 0; /* Убираем скругления по краям экрана */
+    }
+
+    #messages {
+        padding: 10px; /* Уменьшаем отступы, чтобы влезло больше текста */
+    }
+
+    .message {
+        max-width: 90%; /* Сообщения шире на мобилках */
+        font-size: 14px; /* Чуть меньше шрифт для компактности */
+    }
+
+    /* Делаем поле ввода и кнопку удобными для пальцев */
+    #input-area {
+        padding: 10px;
+    }
+
+    input#userInput {
+        padding: 12px;
+        font-size: 16px; /* Защита от авто-зума на iPhone */
+    }
+
+    button#sendBtn {
+        padding: 10px 15px;
+    }
+}
+
+/* Фикс для очень коротких экранов (горизонтальный режим) */
+@media (max-height: 500px) {
+    #chat-container {
+        height: 100vh;
+    }
+}
