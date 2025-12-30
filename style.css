@@ -55,76 +55,7 @@ button#sendBtn { background: var(--neon-blue); border: none; padding: 10px 20px;
 .typing-indicator { padding: 10px; display: flex; gap: 5px; }
 .typing-indicator span { width: 6px; height: 6px; background: var(--neon-blue); border-radius: 50%; animation: bounce 1s infinite; }
 @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-#chat-container {
-    display: flex;
-    flex-direction: row; /* На ПК они стоят в ряд */
-    justify-content: center;
-    align-items: flex-start;
-    gap: 20px;
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-}
 
-/* Основное окно чата */
-.main-chat {
-    flex: 1; /* Позволяет чату расширяться */
-    min-width: 300px;
-}
-
-/* Панель истории */
-.history-panel {
-    width: 300px;
-    flex-shrink: 0;
-}
-
-/* 2. ТОТ САМЫЙ АДАПТИВ ДЛЯ ТЕЛЕФОНА */
-@media screen and (max-width: 768px) {
-    /* Чтобы фон на гитхабе не становился белым */
-    body {
-        background-color: #1e1e2f !important;
-        margin: 0;
-        padding: 10px;
-        display: block; /* Убираем центрирование flex для мобилок */
-    }
-
-    #chat-container {
-        flex-direction: column; /* Ставим элементы друг под друга */
-        height: auto;
-        gap: 15px;
-    }
-
-    /* СКРЫВАЕМ ИСТОРИЮ НА МОБИЛКАХ (чтобы не мешала чату) */
-    /* Либо оставь, если хочешь, чтобы она была внизу */
-    .history-panel {
-        width: 100%;
-        order: 2; /* Уходит вниз под чат */
-        display: none; /* Рекомендую скрыть, чтобы чат был на весь экран */
-    }
-
-    /* РАСТЯГИВАЕМ ЧАТ */
-    .main-chat {
-        width: 100%;
-        order: 1;
-        min-height: 80vh; /* Занимает большую часть экрана */
-    }
-
-    /* Исправление нижнего поля (инпут + кнопка) */
-    #input-area {
-        flex-wrap: nowrap; /* Запрещаем перенос кнопки под инпут */
-        padding: 10px;
-    }
-
-    input#userInput {
-        width: 100%; /* Занимает всё свободное место */
-        font-size: 16px; /* Важно для iPhone */
-    }
-
-    button#sendBtn {
-        white-space: nowrap; /* Чтобы текст "Отправить" не ломался */
-        padding: 10px 15px;
-    }
-}
 .container, #chat-container, body > div { 
     display: flex !important;
     flex-direction: row; /* На ПК в ряд */
@@ -179,4 +110,5 @@ button#sendBtn { background: var(--neon-blue); border: none; padding: 10px 20px;
         padding: 10px 15px;
     }
 }
+
 
