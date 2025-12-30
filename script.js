@@ -1,5 +1,6 @@
 // --- НАСТРОЙКИ ---
-const OPENAI_API_KEY = "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"; // Замените на свой ключ
+// Я добавил .trim(), чтобы код сам убирал лишние пробелы, если они попадут в ключ
+const OPENAI_API_KEY = "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".trim(); 
 const API_URL = "https://api.openai.com/v1/chat/completions";
 
 const messagesContainer = document.getElementById("messages");
@@ -7,7 +8,7 @@ const input = document.getElementById("userInput");
 const typingBox = document.getElementById("typing-box");
 const historyList = document.getElementById("history");
 
-// Твоя старая база ответов
+// Твоя база ответов
 const localAnswers = {
     "пицца": "Рецепт пиццы от Темирлана: 1. Тесто. 2. Соус. 3. Сыр. 4. Печь! 🍕",
     "создатель": "Меня создал великий Темирлан! 😎",
@@ -20,7 +21,7 @@ window.onload = () => {
     addMessage("Бот", "Я на связи через OpenAI! Спрашивай что угодно. 🚀", "bot");
 };
 
-// --- ФУНКЦИИ ИСТОРИИ (БЕЗ ИЗМЕНЕНИЙ) ---
+// --- ФУНКЦИИ ИСТОРИИ ---
 function saveToHistory(text) {
     let history = JSON.parse(localStorage.getItem("ai_chat_history")) || [];
     if (history[0] !== text) {
@@ -58,7 +59,7 @@ function deleteHistoryItem(index) {
     renderHistory();
 }
 
-// --- ЛОГИКА ЧАТА (ОБНОВЛЕНА ПОД OPENAI) ---
+// --- ЛОГИКА ЧАТА ---
 async function sendMessage() {
     const text = input.value.trim();
     if (!text) return;
@@ -67,12 +68,12 @@ async function sendMessage() {
     saveToHistory(text);
     input.value = "";
     
-    typingBox.style.display = "flex";
+    if (typingBox) typingBox.style.display = "flex";
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
     const response = await getBotResponse(text);
 
-    typingBox.style.display = "none";
+    if (typingBox) typingBox.style.display = "none";
     addMessage("Бот", response, "bot");
 }
 
@@ -82,30 +83,34 @@ async function getBotResponse(text) {
         if (lowText.includes(key)) return localAnswers[key];
     }
 
+    // Очистка ключа от невидимых символов (защита от ошибки ISO-8859-1)
+    const cleanKey = OPENAI_API_KEY.replace(/[\u200B-\u200D\uFEFF]/g, "");
+
     try {
         const response = await fetch(API_URL, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${OPENAI_API_KEY}` // Ключ теперь передается в заголовке
+                "Authorization": "Bearer " + cleanKey
             },
             body: JSON.stringify({
-                model: "gpt-4o-mini", // Указываем модель
-                messages: [{ role: "user", content: text }] // Структура OpenAI
+                model: "gpt-4o-mini",
+                messages: [{ role: "user", content: text }]
             })
         });
 
         const data = await response.json();
 
         if (data.error) {
+            console.error("OpenAI Error:", data.error);
             return `Ошибка OpenAI: ${data.error.message}`;
         }
 
-        return data.choices[0].message.content; // Путь к ответу в OpenAI
+        return data.choices[0].message.content;
     } catch (e) {
-    console.error("Детальная ошибка:", e);
-    return `Ошибка: ${e.message}. Нажми F12 и посмотри вкладку Console.`;
-}
+        console.error("Детальная ошибка:", e);
+        return `Ошибка связи: ${e.message}. Проверь VPN или ключ.`;
+    }
 }
 
 function addMessage(author, text, className) {
@@ -116,7 +121,13 @@ function addMessage(author, text, className) {
     messagesContainer.scrollTo({ top: messagesContainer.scrollHeight, behavior: 'smooth' });
 }
 
-document.getElementById("sendBtn").onclick = sendMessage;
-input.onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); sendMessage(); } };
+// Привязка событий
+const sendBtn = document.getElementById("sendBtn");
+if (sendBtn) sendBtn.onclick = sendMessage;
 
-
+input.onkeydown = (e) => { 
+    if (e.key === "Enter") { 
+        e.preventDefault(); 
+        sendMessage(); 
+    } 
+};
