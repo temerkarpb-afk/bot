@@ -56,60 +56,73 @@ button#sendBtn { background: var(--neon-blue); border: none; padding: 10px 20px;
 .typing-indicator span { width: 6px; height: 6px; background: var(--neon-blue); border-radius: 50%; animation: bounce 1s infinite; }
 @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 #chat-container {
+    display: flex;
+    flex-direction: row; /* На ПК они стоят в ряд */
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
     width: 100%;
-    max-width: 600px; /* Твоя ширина для ПК */
+    max-width: 1200px;
     margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    height: 90vh; /* Или твоя высота */
 }
 
-/* Область сообщений */
-#messages {
-    flex: 1; /* Заставляет область сообщений забирать всё свободное место */
-    overflow-y: auto;
-    width: 100%;
+/* Основное окно чата */
+.main-chat {
+    flex: 1; /* Позволяет чату расширяться */
+    min-width: 300px;
 }
 
-/* Зона ввода (инпут + кнопка) */
-#input-area {
-    display: flex;
-    width: 100%;
-    gap: 8px; /* Расстояние между инпутом и кнопкой */
+/* Панель истории */
+.history-panel {
+    width: 300px;
+    flex-shrink: 0;
 }
 
-/* Твой инпут */
-input#userInput {
-    flex: 1; /* Инпут растягивается на всю доступную ширину */
-    min-width: 0; /* Важно: чтобы инпут не вылезал за экран на узких устройствах */
-}
-
-/* Твоя кнопка */
-button#sendBtn {
-    flex-shrink: 0; /* Чтобы кнопка не сжималась, когда тексту мало места */
-}
-
-/* --- САМ АДАПТИВ (Медиа-запросы) --- */
-
-@media (max-width: 600px) {
+/* 2. ТОТ САМЫЙ АДАПТИВ ДЛЯ ТЕЛЕФОНА */
+@media screen and (max-width: 768px) {
+    /* Чтобы фон на гитхабе не становился белым */
     body {
-        padding: 0;
+        background-color: #1e1e2f !important;
         margin: 0;
+        padding: 10px;
+        display: block; /* Убираем центрирование flex для мобилок */
     }
 
     #chat-container {
-        width: 100vw;   /* На мобилках на всю ширину */
-        height: 100vh;  /* На всю высоту */
-        height: 100dvh; /* Для мобильных браузеров (Safari/Chrome) */
-        border-radius: 0; /* Если были скругления у контейнера — убираем */
+        flex-direction: column; /* Ставим элементы друг под друга */
+        height: auto;
+        gap: 15px;
     }
 
-    .message {
-        max-width: 90%; /* Сообщения чуть шире на смартфонах */
-        font-size: 16px; /* Оптимально для чтения с экрана */
+    /* СКРЫВАЕМ ИСТОРИЮ НА МОБИЛКАХ (чтобы не мешала чату) */
+    /* Либо оставь, если хочешь, чтобы она была внизу */
+    .history-panel {
+        width: 100%;
+        order: 2; /* Уходит вниз под чат */
+        display: none; /* Рекомендую скрыть, чтобы чат был на весь экран */
+    }
+
+    /* РАСТЯГИВАЕМ ЧАТ */
+    .main-chat {
+        width: 100%;
+        order: 1;
+        min-height: 80vh; /* Занимает большую часть экрана */
+    }
+
+    /* Исправление нижнего поля (инпут + кнопка) */
+    #input-area {
+        flex-wrap: nowrap; /* Запрещаем перенос кнопки под инпут */
+        padding: 10px;
     }
 
     input#userInput {
-        font-size: 16px; /* Защита от авто-приближения (zoom) на iPhone */
+        width: 100%; /* Занимает всё свободное место */
+        font-size: 16px; /* Важно для iPhone */
+    }
+
+    button#sendBtn {
+        white-space: nowrap; /* Чтобы текст "Отправить" не ломался */
+        padding: 10px 15px;
     }
 }
+
