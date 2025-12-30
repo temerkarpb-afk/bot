@@ -1,5 +1,5 @@
 // --- НАСТРОЙКИ ---
-const OPENAI_API_KEY = "ВАШ_КЛЮЧ_OPENAI"; // Замените на свой ключ
+const OPENAI_API_KEY = "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"; // Замените на свой ключ
 const API_URL = "https://api.openai.com/v1/chat/completions";
 
 const messagesContainer = document.getElementById("messages");
@@ -118,4 +118,5 @@ function addMessage(author, text, className) {
 
 document.getElementById("sendBtn").onclick = sendMessage;
 input.onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); sendMessage(); } };
+
 
