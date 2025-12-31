@@ -1,133 +1,105 @@
-// --- НАСТРОЙКИ ---
-// Я добавил .trim(), чтобы код сам убирал лишние пробелы, если они попадут в ключ
-const OPENAI_API_KEY = "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".trim(); 
-const API_URL = "https://api.openai.com/v1/chat/completions";
+const REPLIT_URL = "https://79b5294b-8b6c-4109-ab32-15dab9332169-00-9no3sv7zu19v.pike.replit.dev/chat";
 
 const messagesContainer = document.getElementById("messages");
+const historyList = document.getElementById("history"); // Для правой колонки
 const input = document.getElementById("userInput");
 const typingBox = document.getElementById("typing-box");
-const historyList = document.getElementById("history");
+const clearBtn = document.getElementById("clearBtn");
+const sendBtn = document.getElementById("sendBtn");
 
-// Твоя база ответов
-const localAnswers = {
-    "пицца": "Рецепт пиццы от Темирлана: 1. Тесто. 2. Соус. 3. Сыр. 4. Печь! 🍕",
-    "создатель": "Меня создал великий Темирлан! 😎",
-    "привет": "Привет! Я твой ИИ. О чем сегодня поговорим? 👋"
-};
-
-// --- ИНИЦИАЛИЗАЦИЯ ---
-window.onload = () => {
-    renderHistory();
-    addMessage("Бот", "Я на связи через OpenAI! Спрашивай что угодно. 🚀", "bot");
-};
-
-// --- ФУНКЦИИ ИСТОРИИ ---
-function saveToHistory(text) {
-    let history = JSON.parse(localStorage.getItem("ai_chat_history")) || [];
-    if (history[0] !== text) {
-        history.unshift(text);
-        if (history.length > 15) history.pop();
-        localStorage.setItem("ai_chat_history", JSON.stringify(history));
-        renderHistory();
-    }
-}
-
-function renderHistory() {
-    if (!historyList) return;
-    historyList.innerHTML = "";
-    let history = JSON.parse(localStorage.getItem("ai_chat_history")) || [];
-    history.forEach((text, index) => {
-        const item = document.createElement("div");
-        item.className = "history-item";
-        item.innerHTML = `
-            <span class="history-text" onclick="useHistoryItem('${text}')">${text}</span>
-            <button class="delete-item-btn" onclick="deleteHistoryItem(${index})">✕</button>
-        `;
-        historyList.appendChild(item);
-    });
-}
-
-function useHistoryItem(text) {
-    input.value = text;
-    sendMessage();
-}
-
-function deleteHistoryItem(index) {
-    let history = JSON.parse(localStorage.getItem("ai_chat_history")) || [];
-    history.splice(index, 1);
-    localStorage.setItem("ai_chat_history", JSON.stringify(history));
-    renderHistory();
-}
-
-// --- ЛОГИКА ЧАТА ---
-async function sendMessage() {
-    const text = input.value.trim();
-    if (!text) return;
-
-    addMessage("Вы", text, "user");
-    saveToHistory(text);
-    input.value = "";
-    
-    if (typingBox) typingBox.style.display = "flex";
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-    const response = await getBotResponse(text);
-
-    if (typingBox) typingBox.style.display = "none";
-    addMessage("Бот", response, "bot");
-}
-
-async function getBotResponse(text) {
-    const lowText = text.toLowerCase();
-    for (let key in localAnswers) {
-        if (lowText.includes(key)) return localAnswers[key];
-    }
-
-    // Очистка ключа от невидимых символов (защита от ошибки ISO-8859-1)
-    const cleanKey = OPENAI_API_KEY.replace(/[\u200B-\u200D\uFEFF]/g, "");
-
-    try {
-        const response = await fetch(API_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + cleanKey
-            },
-            body: JSON.stringify({
-                model: "gpt-4o-mini",
-                messages: [{ role: "user", content: text }]
-            })
-        });
-
-        const data = await response.json();
-
-        if (data.error) {
-            console.error("OpenAI Error:", data.error);
-            return `Ошибка OpenAI: ${data.error.message}`;
-        }
-
-        return data.choices[0].message.content;
-    } catch (e) {
-        console.error("Детальная ошибка:", e);
-        return `Ошибка связи: ${e.message}. Проверь VPN или ключ.`;
-    }
-}
-
-function addMessage(author, text, className) {
+// 1. Отображение сообщения в чате
+function renderMessage(author, text, className) {
     const div = document.createElement("div");
     div.className = `message ${className}`;
     div.innerHTML = `<strong>${author}:</strong> ${text}`;
     messagesContainer.appendChild(div);
-    messagesContainer.scrollTo({ top: messagesContainer.scrollHeight, behavior: 'smooth' });
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
-// Привязка событий
-const sendBtn = document.getElementById("sendBtn");
-if (sendBtn) sendBtn.onclick = sendMessage;
+// 2. Добавление короткой записи в правую колонку (История)
+function addToHistoryPanel(text) {
+    if (!historyList) return;
+    const item = document.createElement("div");
+    item.className = "history-item";
+    item.innerText = text.substring(0, 30) + (text.length > 30 ? "..." : "");
+    historyList.prepend(item); // Новые запросы сверху
+}
 
-input.onkeydown = (e) => { 
-    if (e.key === "Enter") { 
-        e.preventDefault(); 
-        sendMessage(); 
-    } 
-};
+// 3. Сохранение и загрузка
+function saveChat(author, text, className) {
+    const chat = JSON.parse(localStorage.getItem("chatHistory")) || [];
+    chat.push({ author, text, className });
+    localStorage.setItem("chatHistory", JSON.stringify(chat));
+}
+
+function loadAll() {
+    const chat = JSON.parse(localStorage.getItem("chatHistory")) || [];
+    messagesContainer.innerHTML = "";
+    if (historyList) historyList.innerHTML = "";
+    
+    chat.forEach(msg => {
+        renderMessage(msg.author, msg.text, msg.className);
+        if (msg.className === "user") addToHistoryPanel(msg.text);
+    });
+}
+
+// 4. Функция очистки (ТЕПЕРЬ ТОЧНО РАБОТАЕТ)
+function clearFullHistory() {
+    if (confirm("Удалить всю историю переписки?")) {
+        localStorage.removeItem("chatHistory");
+        messagesContainer.innerHTML = "";
+        if (historyList) historyList.innerHTML = "";
+        renderMessage("Бот", "История очищена!", "bot");
+    }
+}
+
+// 5. Функция отправки
+async function sendMessage() {
+    const text = input.value.trim();
+    if (!text) return;
+
+    renderMessage("Вы", text, "user");
+    addToHistoryPanel(text);
+    saveChat("Вы", text, "user");
+    input.value = "";
+    
+    if (typingBox) typingBox.style.display = "flex";
+
+    try {
+        const response = await fetch(REPLIT_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: text })
+        });
+
+        const data = await response.json();
+        if (typingBox) typingBox.style.display = "none";
+
+        if (data.text) {
+            renderMessage("Бот", data.text, "bot");
+            saveChat("Бот", data.text, "bot");
+        } else {
+            renderMessage("Бот", "Ошибка: " + (data.error || "Пустой ответ"), "bot");
+        }
+    } catch (e) {
+        if (typingBox) typingBox.style.display = "none";
+        renderMessage("Бот", "❌ Ошибка связи с сервером.", "bot");
+        console.error(e);
+    }
+}
+
+// 6. Привязка событий
+if (sendBtn) sendBtn.onclick = (e) => { e.preventDefault(); sendMessage(); };
+if (clearBtn) clearBtn.onclick = (e) => { e.preventDefault(); clearFullHistory(); };
+
+if (input) {
+    input.onkeydown = (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            sendMessage();
+        }
+    };
+}
+
+// Старт
+loadAll();
